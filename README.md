@@ -103,9 +103,3 @@ packages which are designed to help facilitate testing.
 - [Qt.py](https://pypi.org/project/Qt.py/)
 - [scipy](https://pypi.org/project/scipy/)
 - [sphinx](https://pypi.org/project/Sphinx/)
-
-## Rez Utilities
-
-https://github.com/marketplace/actions/install-rez-packages
-https://github.com/marketplace/actions/build-rez-package
-
