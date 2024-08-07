@@ -1,0 +1,119 @@
+[build-system]
+    requires = ["setuptools>=42", "setuptools_scm[toml]>=6.2", "wheel"]
+    build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+    addopts = "--cov --cov-report=html --cov-report=xml --cov-fail-under=100 --color=yes"
+
+[tool.coverage]
+
+    [tool.coverage.run]
+        branch = true
+        source =  [
+            "houdini_docker_builder",
+        ]
+        omit = [
+            "sidefx.py",
+        ]
+        disable_warnings = [
+            "module-not-measured",
+        ]
+    [tool.coverage.report]
+        exclude_lines = [
+            # Have to re-enable the standard pragma
+            "pragma: no cover",
+
+            # Don't complain about missing debug-only code:
+            "def __repr__",
+            "if self.debug",
+            "if TYPE_CHECKING",
+
+            # Don't complain if tests don't hit defensive assertion code:
+            "raise AssertionError",
+            "raise NotImplementedError",
+
+            # Don't complain if non-runnable code isn't run:
+            "if 0:",
+            "if __name__ == .__main__.:",
+        ]
+        ignore_errors = true
+        skip_empty = true
+
+    [tool.coverage.html]
+        directory = "coverage_html_report"
+
+[tool.isort]
+    profile = "black"
+    src_paths = ["python"]
+    sections = "FUTURE,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+    import_heading_future = "Future"
+    import_heading_stdlib = "Standard Library"
+    import_heading_thirdparty = "Third Party"
+    import_heading_firstparty = "houdini_docker_builder"
+    dedup_headings = true
+    indented_import_headings = false
+
+[tool.mypy]
+    modules = ["houdini_docker_builder"]
+    disallow_incomplete_defs = true
+    disallow_untyped_calls = true
+    disallow_untyped_defs = true
+
+[tool.ruff]
+    line-length = 120
+
+    [tool.ruff.lint]
+        extend-select = [
+            "E",  # pycodestyle
+            "W",  # pycodestyle
+            "UP", # pyupgrade
+            "D",  # pydocstyle
+            "F",  # Pyflakes
+            "PL",  # Pylint
+            "RSE",  # flake8-raise
+            "B",  # flake8-bugbear
+            "PT",  #  flake8-pytest-style
+            "C90",  #  mccabe
+            "TRY",  #  tryceratops
+            "FLY",  #  flynt
+            "PERF",  #  Perflint
+            "LOG",  #  flake8-logging
+            "BLE",  # flake8-blind-except
+            "A",  # flake8-builtins
+            "C4",  # flake8-comprehensions
+            "RET",  # flake8-return
+            "SIM",  # flake8-simplify
+            "TCH",  # flake8-type-checking
+            "PTH",  # flake8-use-pathlib
+            "RUF",  # Ruff specific
+            "FBT",  # flake8-boolean-trap
+            "FURB",  # refurb
+            "PYI",  # flake8-pyi
+        ]
+        ignore = [
+            "D104",  # Missing docstring in public module
+            "D105",  # Missing docstring in magic method
+            "D107",  # Missing docstring in __init__
+            "PT004",  # Fixtures not returning anything not starting with _
+            "TRY003",  # Exception long messages
+        ]
+
+    [tool.ruff.lint.per-file-ignores]
+        "plugin.py" = [
+            "F401",  # Module level import not at top of file
+        ]
+        "tests/*.py" = [
+            "PLR2004",  # Magic value in comparison
+            "PLR6301",  # 'no-self-use' for tests
+            "PT006",  # tuple for parametrized names
+            "PT007",  # tuple for parametrized values
+        ]
+
+    [tool.ruff.lint.flake8-pytest-style]
+        fixture-parentheses = false  # Match actual pytest recommendation with no parentheses
+
+    [tool.ruff.lint.pydocstyle]
+        convention = "google"
+
+    [tool.ruff.lint.pylint]
+        max-args = 6
