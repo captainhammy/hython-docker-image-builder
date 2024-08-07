@@ -1,4 +1,4 @@
-"""Test the houdini_docker_builder.build module."""
+"""Test the hython_docker_image_builder.build module."""
 
 # Standard Library
 import contextlib
@@ -8,9 +8,9 @@ import pathlib
 # Third Party
 import pytest
 
-# houdini_docker_builder
+# hython_docker_image_builder
 import sidefx
-from houdini_docker_builder import builder
+from hython_docker_image_builder import builder
 
 # Tests
 
@@ -24,7 +24,7 @@ from houdini_docker_builder import builder
     ),
 )
 def test__determine_release(build, expected):
-    """Test houdini_docker_builder.build._determine_release()."""
+    """Test hython_docker_image_builder.build._determine_release()."""
     releases = [
         {"build": "456", "date": "2024/10/26", "version": "20.0"},
         {"build": "789", "date": "2024/10/27", "version": "19.5"},
@@ -50,7 +50,7 @@ def test__determine_release(build, expected):
     ),
 )
 def test__determine_version_info(version_str, expected, raiser):
-    """Test houdini_docker_builder.build._determine_version_info()."""
+    """Test hython_docker_image_builder.build._determine_version_info()."""
     with raiser:
         result = builder._determine_version_info(version_str)
 
@@ -59,7 +59,7 @@ def test__determine_version_info(version_str, expected, raiser):
 
 @pytest.mark.parametrize("has_error", (False, True))
 def test__download_file(mocker, has_error):
-    """Test houdini_docker_builder.build._download_file()."""
+    """Test hython_docker_image_builder.build._download_file()."""
     mock_url = mocker.MagicMock(spec=str)
     mock_target = mocker.MagicMock(spec=pathlib.Path)
 
@@ -79,18 +79,18 @@ def test__download_file(mocker, has_error):
 
 
 def test__download_product(mocker):
-    """Test houdini_docker_builder.build._download_product()."""
+    """Test hython_docker_image_builder.build._download_product()."""
     build = {
         "download_url": "https://some/url",
         "filename": "houdini-20.0.724-linux_x86_64_gcc11.2.tar.gz",
         "hash": "b9968530277a07bb50ce0690c0c5bbcd",
     }
 
-    mock_service = mocker.patch("houdini_docker_builder.builder.sidefx.service")
+    mock_service = mocker.patch("hython_docker_image_builder.builder.sidefx.service")
     mock_service.download.get_daily_build_download.return_value = build
 
-    mock_download = mocker.patch("houdini_docker_builder.builder._download_file")
-    mock_verify = mocker.patch("houdini_docker_builder.builder._verify_checksum")
+    mock_download = mocker.patch("hython_docker_image_builder.builder._download_file")
+    mock_verify = mocker.patch("hython_docker_image_builder.builder._verify_checksum")
 
     release = {"version": "20.0", "build": "724"}
 
@@ -118,7 +118,7 @@ def test__download_product(mocker):
     ),
 )
 def test__get_target_release(mocker, has_releases, has_build):
-    """Test houdini_docker_builder.build._get_target_release()."""
+    """Test hython_docker_image_builder.build._get_target_release()."""
     mock_releases = [mocker.MagicMock(spec=dict)] if has_releases else []
 
     mock_service = mocker.MagicMock()
@@ -129,9 +129,9 @@ def test__get_target_release(mocker, has_releases, has_build):
     mock_major_minor = mocker.MagicMock(spec=str)
     build = "123" if has_build else None
 
-    mocker.patch("houdini_docker_builder.builder._determine_version_info", return_value=(mock_major_minor, build))
+    mocker.patch("hython_docker_image_builder.builder._determine_version_info", return_value=(mock_major_minor, build))
 
-    mock_get_release = mocker.patch("houdini_docker_builder.builder._determine_release")
+    mock_get_release = mocker.patch("hython_docker_image_builder.builder._determine_release")
 
     raiser = contextlib.nullcontext() if has_releases else pytest.raises(RuntimeError)
 
@@ -146,7 +146,7 @@ def test__get_target_release(mocker, has_releases, has_build):
 
 
 def test__verify_checksum(shared_datadir):
-    """Test houdini_docker_builder.build._verify_checksum()."""
+    """Test hython_docker_image_builder.build._verify_checksum()."""
     with pytest.raises(RuntimeError):
         builder._verify_checksum(shared_datadir / "verify_checksum.txt", "000")
 
@@ -163,17 +163,17 @@ def test__verify_checksum(shared_datadir):
     ),
 )
 def test_check_build_can_be_installed(mocker, version, tag_exists, force, unsupported):
-    """Test houdini_docker_builder.build.check_build_can_be_installed()."""
+    """Test hython_docker_image_builder.build.check_build_can_be_installed()."""
     mock_service = mocker.MagicMock(spec=sidefx._Service)
 
     mocker.patch(
-        "houdini_docker_builder.builder._get_target_release", return_value={"version": version, "build": "724"}
+        "hython_docker_image_builder.builder._get_target_release", return_value={"version": version, "build": "724"}
     )
 
-    mocker.patch("houdini_docker_builder.builder.docker.check_tag_exists", return_value=tag_exists)
-    mocker.patch("houdini_docker_builder.builder.docker.build_full_tag_name")
+    mocker.patch("hython_docker_image_builder.builder.docker.check_tag_exists", return_value=tag_exists)
+    mocker.patch("hython_docker_image_builder.builder.docker.build_full_tag_name")
 
-    mock_download = mocker.patch("houdini_docker_builder.builder._download_product")
+    mock_download = mocker.patch("hython_docker_image_builder.builder._download_product")
 
     mock_launcher = mocker.MagicMock(spec=pathlib.Path)
     mock_archive = mocker.MagicMock(spec=pathlib.Path)
@@ -197,8 +197,8 @@ def test_check_build_can_be_installed(mocker, version, tag_exists, force, unsupp
 
 
 def test__get_service(mocker):
-    """Test houdini_docker_builder.build.get_service()."""
-    mock_service = mocker.patch("houdini_docker_builder.builder.sidefx.service")
+    """Test hython_docker_image_builder.build.get_service()."""
+    mock_service = mocker.patch("hython_docker_image_builder.builder.sidefx.service")
 
     mock_id = mocker.MagicMock(spec=str)
     mock_secret = mocker.MagicMock(spec=str)

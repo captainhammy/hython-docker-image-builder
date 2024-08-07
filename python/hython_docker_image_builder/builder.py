@@ -13,9 +13,9 @@ from operator import itemgetter
 # Third Party
 import requests
 
-# houdini_docker_builder
+# hython_docker_image_builder
 import sidefx  # type: ignore
-from houdini_docker_builder import docker
+from hython_docker_image_builder import docker
 
 TOKEN_URL = "https://www.sidefx.com/oauth2/application_token"
 ENDPOINT_URL = "https://www.sidefx.com/api/"

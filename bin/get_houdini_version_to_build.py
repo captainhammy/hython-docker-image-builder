@@ -5,8 +5,8 @@ import argparse
 import os
 import pathlib
 
-# houdini_docker_builder
-from houdini_docker_builder import builder
+# hython_docker_image_builder
+from hython_docker_image_builder import builder
 
 
 def build_parser() -> argparse.ArgumentParser:
