@@ -10,7 +10,7 @@
     [tool.coverage.run]
         branch = true
         source =  [
-            "houdini_docker_builder",
+            "hython_docker_image_builder",
         ]
         omit = [
             "sidefx.py",
@@ -49,12 +49,12 @@
     import_heading_future = "Future"
     import_heading_stdlib = "Standard Library"
     import_heading_thirdparty = "Third Party"
-    import_heading_firstparty = "houdini_docker_builder"
+    import_heading_firstparty = "hython_docker_image_builder"
     dedup_headings = true
     indented_import_headings = false
 
 [tool.mypy]
-    modules = ["houdini_docker_builder"]
+    modules = ["hython_docker_image_builder"]
     disallow_incomplete_defs = true
     disallow_untyped_calls = true
     disallow_untyped_defs = true
