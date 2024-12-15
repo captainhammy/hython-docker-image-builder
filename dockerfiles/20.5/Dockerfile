@@ -1,4 +1,4 @@
-ARG OS_IMAGE=ubuntu:mantic
+ARG OS_IMAGE=ubuntu:noble
 
 FROM ${OS_IMAGE} AS houdini-install
 
@@ -24,7 +24,11 @@ ADD --chmod=755 ${HOUDINI_INSTALLER_FILENAME} ${HOUDINI_ISO_FILENAME} ./
 
 RUN apt update \
     && apt upgrade -y \
-    && apt install -y tzdata csh curl git pkg-config procps wget software-properties-common gcc-11 g++-11 libglu1-mesa libsm6 bc libnss3 libx11-6 libx11-xcb1 libxcb1 libxcb1-dev libxcb-icccm4 libx11-xcb-dev libxrandr2 libxcomposite-dev libxdamage1 libxcursor1 libxi6 libxkbcommon-x11-0 libxtst6 libfontconfig1 libxss1 libpci3 libasound2 libx11-dev libxi-dev libgl-dev build-essential gfortran cmake python${PYTHON_VERSION} python${PYTHON_VERSION}-venv \
+    && apt install -y tzdata csh curl git pkg-config procps wget software-properties-common gcc-11 g++-11 libglu1-mesa libsm6 bc libnss3 libx11-6 libx11-xcb1 libxcb1 libxcb1-dev libxcb-icccm4 libx11-xcb-dev libxrandr2 libxcomposite-dev libxdamage1 libxcursor1 libxi6 libxkbcommon-x11-0 libxtst6 libfontconfig1 libxss1 libpci3 libasound2t64 libx11-dev libxi-dev libgl-dev build-essential gfortran cmake \
+    # Python 3.11 for noble is not available in the standard repositories so we'll need to access it from deadsnakes.
+    && add-apt-repository -y ppa:deadsnakes/ppa \
+    && apt update \
+    && apt install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv \
     # Install a newer version of nodejs to work better with certain github actions.
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt install -y nodejs \
@@ -33,9 +37,9 @@ RUN apt update \
     # Some tools like rez can require a bare 'python' call to run, so generate a symlink for that name
     # to the link containing the major.minor version.
     && ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python \
-    # Remove externally managed file as we want to easily be able to install tools via pip without the
-    # OS/Python getting in the way.
-    && rm /usr/lib/python${PYTHON_VERSION}/EXTERNALLY-MANAGED \
+    # Remove any externally managed file if it exists as we want to easily be able to install tools via \
+    # pip without the OS/Python getting in the way.
+    && rm -f /usr/lib/python${PYTHON_VERSION}/EXTERNALLY-MANAGED \
     # Download and install the latest pip.
     && wget https://bootstrap.pypa.io/get-pip.py \
     && python${PYTHON_VERSION} get-pip.py \
