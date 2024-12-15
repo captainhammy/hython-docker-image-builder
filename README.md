@@ -1,8 +1,8 @@
 Houdini Docker Image Generator
 ==============================
 
-[![Builder](https://github.com/captainhammy/test-docker-builder/actions/workflows/build_houdini_image.yml/badge.svg)](https://github.com/captainhammy/test-docker-builder/actions/workflows/build_houdini_image.yml)
-[![Tests](https://github.com/captainhammy/test-docker-builder/actions/workflows/tests.yml/badge.svg)](https://github.com/captainhammy/test-docker-builder/actions/workflows/tests.yml)
+[![Builder](https://github.com/captainhammy/hython-docker-image-builder/actions/workflows/build_houdini_image.yml/badge.svg)](https://github.com/captainhammy/hython-docker-image-builder/actions/workflows/build_houdini_image.yml)
+[![Tests](https://github.com/captainhammy/hython-docker-image-builder/actions/workflows/tests.yml/badge.svg)](https://github.com/captainhammy/hython-docker-image-builder/actions/workflows/tests.yml)
 [![dockerhub](https://img.shields.io/badge/dockerhub-hython--runner-orange?logo=docker)](https://hub.docker.com/r/captainhammy/hython-runner)
 
 This project is used to generate Docker images which can be used to run **hython** with the goal of performing automated
@@ -22,11 +22,11 @@ Each image for a particular build of Houdini provides versions of related tools 
 Currently, all images provided are created using the **default** build of Houdini, which means libraries that match
 those of the VFX Platform year, and not builds with alternative Python or GCC versions.
 
-| Houdini Version | Linux Image   | VFX Platform Year | Python Version | GCC Version    |
-|-----------------|---------------|-------------------|----------------| ---------------|
-| 20.5            | ubuntu:mantic | 2024              | 3.11           | 11.2           |
-| 20.0            | ubuntu:jammy  | 2023              | 3.10           | 11.2           |
-| 19.5            | ubuntu:focal  | 2022              | 3.9            | 9.3            |
+| Houdini Version | Linux Image  | VFX Platform Year | Python Version | GCC Version    |
+|-----------------|--------------|-------------------|----------------| ---------------|
+| 20.5            | ubuntu:noble | 2024              | 3.11           | 11.2           |
+| 20.0            | ubuntu:jammy | 2023              | 3.10           | 11.2           |
+| 19.5            | ubuntu:focal | 2022              | 3.9            | 9.3            |
 
 # Installed System Packages
 
