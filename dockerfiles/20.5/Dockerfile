@@ -37,6 +37,9 @@ RUN apt update \
     # Some tools like rez can require a bare 'python' call to run, so generate a symlink for that name
     # to the link containing the major.minor version.
     && ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python \
+    # Remove and recreate the 'python3' symlink as it will be pointing to the OS default, 3.12.
+    && rm -f /usr/bin/python3 \
+    && ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python3 \
     # Remove any externally managed file if it exists as we want to easily be able to install tools via \
     # pip without the OS/Python getting in the way.
     && rm -f /usr/lib/python${PYTHON_VERSION}/EXTERNALLY-MANAGED \

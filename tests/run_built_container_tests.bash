@@ -15,6 +15,8 @@ python --version | grep ${_CONTAINER_PYTHON_VERSION}
 python3 --version | grep ${_CONTAINER_PYTHON_VERSION}
 rez-env python -- python --version | grep ${_CONTAINER_PYTHON_VERSION}
 
-# Test that pip works
-pip install requests==2.32.3
-python -c "import requests; print(requests.__version__)" | grep "2.32.3"
+# Test that pip is accessible and sourced from the correct Python version.
+pip --version | grep "python${_CONTAINER_PYTHON_VERSION}"
+pip3 --version | grep "python${_CONTAINER_PYTHON_VERSION}"
+python -m pip --version | grep "python${_CONTAINER_PYTHON_VERSION}"
+python3 -m pip --version | grep "python${_CONTAINER_PYTHON_VERSION}"
