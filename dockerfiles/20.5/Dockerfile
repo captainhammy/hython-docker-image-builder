@@ -122,7 +122,7 @@ RUN mkdir ${_REZ_PACKAGE_DIR} \
     && rez-pip --install pytest-qt \
     && rez-pip --install pytest-subprocess \
     && rez-pip --install python_singleton \
-    && rez-pip --install Qt.py \
+    && rez-pip --install Qt.py==1.4.1 \
     && rez-pip --install ruff \
     && rez-pip --install scipy \
     && rez-pip --install sphinx \

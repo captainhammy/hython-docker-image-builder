@@ -86,7 +86,7 @@ jobs:
           # Tag the new image with the full version and the major.minor (e.g. 20.0.724, 20.0)
           tags: ${{ env.TAG_NAME }}:${{ steps.checker.outputs.build_full_version }},${{ env.TAG_NAME }}:${{ steps.checker.outputs.build_version }}
 
-      - name: Test hython
+      - name: Test built image
         if: steps.checker.outputs.build_version != ''
         run: |
           docker run -e CLIENT_ID=${{ secrets.SESI_CLIENT_ID }} -e CLIENT_SECRET=${{ secrets.SESI_CLIENT_SECRET }} -e LICENSE_SERVER=${{ secrets.LICENSE_SERVER }} -v ./tests:${{ env.TEST_DIR }} -w ${{ env.TEST_DIR }} ${{ env.TAG_NAME }}:${{ steps.checker.outputs.build_full_version }} ./run_built_container_tests.bash

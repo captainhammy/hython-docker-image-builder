@@ -60,5 +60,7 @@ dist
 
 TODO
 
+# Local repo files I don't want to commit
 install_houdini_launcher.sh
 docker-compose.yml
+run_local_build_tests_command
