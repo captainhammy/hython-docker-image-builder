@@ -127,3 +127,10 @@ RUN mkdir ${_REZ_PACKAGE_DIR} \
     && rez-pip --install scipy \
     && rez-pip --install sphinx \
     && rez-pip --install tox
+
+# Install Houdini Rez CMake tools
+RUN git -C /tmp/ clone https://github.com/captainhammy/houdini-rez-cmake-tools.git \
+    && cd /tmp/houdini-rez-cmake-tools \
+    && rez build --install \
+    && cd - \
+    && rm -rf /tmp/houdini-rez-cmake-tools
