@@ -154,15 +154,18 @@ def test__verify_checksum(shared_datadir):
 
 
 @pytest.mark.parametrize(
-    "version,tag_exists,force,unsupported",
+    "version,tag_exists,force,unsupported,no_dockerfile",
     (
-        ("20.0", True, False, False),
-        ("19.5", True, True, False),
-        ("19.0", False, False, True),
-        ("20.0", False, False, False),
+        ("20.0", True, False, False, False),
+        ("19.5", True, True, False, False),
+        ("19.0", False, False, True, False),  # No longer support 19.0
+        ("21.5", False, False, True, False),  # Don't support hypothetical future version
+        ("20.0", False, False, False, False),
+        ("21.0", False, False, False, False),
+        ("21.0", False, False, False, True),  # Dockerfile directory is missing
     ),
 )
-def test_check_build_can_be_installed(mocker, version, tag_exists, force, unsupported):
+def test_check_build_can_be_installed(mocker, version, tag_exists, force, unsupported, no_dockerfile):
     """Test hython_docker_image_builder.build.check_build_can_be_installed()."""
     mock_service = mocker.MagicMock(spec=sidefx._Service)
 
@@ -179,7 +182,10 @@ def test_check_build_can_be_installed(mocker, version, tag_exists, force, unsupp
     mock_archive = mocker.MagicMock(spec=pathlib.Path)
     mock_download.side_effect = (mock_launcher, mock_archive)
 
-    raiser = pytest.raises(RuntimeError) if unsupported else contextlib.nullcontext()
+    if no_dockerfile:
+        mocker.patch.object(pathlib.Path, "is_dir", return_value=False)
+
+    raiser = pytest.raises(RuntimeError) if unsupported or no_dockerfile else contextlib.nullcontext()
 
     with raiser:
         result = builder.check_build_can_be_installed(mock_service, version, "name/repo", force=force)

@@ -94,7 +94,6 @@
             "D104",  # Missing docstring in public module
             "D105",  # Missing docstring in magic method
             "D107",  # Missing docstring in __init__
-            "PT004",  # Fixtures not returning anything not starting with _
             "TRY003",  # Exception long messages
         ]
 

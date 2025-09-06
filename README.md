@@ -24,6 +24,7 @@ those of the VFX Platform year, and not builds with alternative Python or GCC ve
 
 | Houdini Version | Linux Image  | VFX Platform Year | Python Version | GCC Version    |
 |-----------------|--------------|-------------------|----------------| ---------------|
+| 21.0            | ubuntu:noble | 2025              | 3.11           | 11.2           |
 | 20.5            | ubuntu:noble | 2024              | 3.11           | 11.2           |
 | 20.0            | ubuntu:jammy | 2023              | 3.10           | 11.2           |
 | 19.5            | ubuntu:focal | 2022              | 3.9            | 9.3            |
@@ -100,6 +101,6 @@ packages which are designed to help facilitate testing.
 ### Other
 - [numpy](https://pypi.org/project/numpy/) - The installed version matches that of the VFX Platform year 
 - [PySide2](https://pypi.org/project/PySide2/) or [PySide6](https://pypi.org/project/PySide6/) - The installed version matches that of the VFX Platform year 
-- [Qt.py](https://pypi.org/project/Qt.py/)
+- [Qt.py](https://pypi.org/project/Qt.py/) - Qt.py is currently not provided for images featuring Qt6 (21.0)
 - [scipy](https://pypi.org/project/scipy/)
 - [sphinx](https://pypi.org/project/Sphinx/)

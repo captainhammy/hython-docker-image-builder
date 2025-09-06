@@ -18,7 +18,7 @@ def build_full_tag_name(tag_base: str, version: str) -> str:
 
 
 def check_tag_exists(tag_base: str, version: str) -> bool:
-    """Check of a tag of name:version already exists in dockerhub.
+    """Check if a tag of name:version already exists in dockerhub.
 
     Args:
         tag_base: TThe user/repo portion of the tag name.
