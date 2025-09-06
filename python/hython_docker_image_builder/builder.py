@@ -20,12 +20,7 @@ from hython_docker_image_builder import docker
 TOKEN_URL = "https://www.sidefx.com/oauth2/application_token"
 ENDPOINT_URL = "https://www.sidefx.com/api/"
 
-SUPPORTED_MAJOR_MINOR_VERSIONS = (
-    "19.5",
-    "20.0",
-    "20.5",
-    "21.0"
-)
+SUPPORTED_MAJOR_MINOR_VERSIONS = ("19.5", "20.0", "20.5", "21.0")
 
 # Non-Public Functions
 
