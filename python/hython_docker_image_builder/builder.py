@@ -20,6 +20,13 @@ from hython_docker_image_builder import docker
 TOKEN_URL = "https://www.sidefx.com/oauth2/application_token"
 ENDPOINT_URL = "https://www.sidefx.com/api/"
 
+SUPPORTED_MAJOR_MINOR_VERSIONS = (
+    "19.5",
+    "20.0",
+    "20.5",
+    "21.0"
+)
+
 # Non-Public Functions
 
 
@@ -111,7 +118,7 @@ def _determine_release(releases: list[dict], build: str | None) -> dict:
                 release_to_install = release
                 break
 
-        # If one isn't found then raise an exception.
+        # If one isn't found, then raise an exception.
         else:
             raise RuntimeError(f"Build {release['version']}.{build} not found!")
 
@@ -131,7 +138,7 @@ def _get_target_release(service: sidefx._Service, version_arg: str) -> dict:
 
     `version_arg` can be empty, a {major.minor} or {major.minor.build} type
     string. If the value is empty, the most recent production build is chosen.
-    If it is a {major.minor} then that is used to find the latest production build of
+    If it is a {major.minor}, then that is used to find the latest production build of
     that release.
 
     Args:
@@ -199,6 +206,9 @@ def check_build_can_be_installed(service: sidefx._Service, version_arg: str, tag
 
     version = target_release["version"]
 
+    if version not in SUPPORTED_MAJOR_MINOR_VERSIONS:
+        raise RuntimeError(f"Major version {version} is not supported.")
+
     # Create the 'full' version here since the passed in version could be something like
     # "20.0" and the resolved actual version is provided by the returned value.
     full_version = f"{version}.{target_release['build']}"
@@ -214,7 +224,7 @@ def check_build_can_be_installed(service: sidefx._Service, version_arg: str, tag
     build_folder = pathlib.Path.cwd() / "dockerfiles" / version
 
     if not build_folder.is_dir():
-        raise RuntimeError(f"Workflow cannot currently build images for {version}")
+        raise RuntimeError(f"Cannot find dockerfiles for {version}")
 
     launcher = _download_product(service, target_release, "houdini-launcher", build_folder)
     archive = _download_product(service, target_release, "launcher-iso", build_folder)
