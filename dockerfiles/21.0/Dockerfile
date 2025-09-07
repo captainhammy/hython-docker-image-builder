@@ -146,5 +146,3 @@ RUN git -C /tmp/ clone https://github.com/captainhammy/houdini-rez-cmake-tools.g
     && rez build --install \
     && cd - \
     && rm -rf /tmp/houdini-rez-cmake-tools
-
-COPY ./hserver ${HOUDINI_INSTALL_DIR}/bin
