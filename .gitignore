@@ -64,3 +64,4 @@ TODO
 install_houdini_launcher.sh
 docker-compose.yml
 run_local_build_tests_command
+dockerfiles/*/default_pip_packages.txt
