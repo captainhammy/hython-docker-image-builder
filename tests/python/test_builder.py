@@ -154,23 +154,32 @@ def test__verify_checksum(shared_datadir):
 
 
 @pytest.mark.parametrize(
-    "version,tag_exists,force,unsupported,no_dockerfile",
+    "explicit_version,implicit_version,tag_exists,force,unsupported,no_dockerfile",
     (
-        ("20.0", True, False, False, False),
-        ("19.5", True, True, False, False),
-        ("19.0", False, False, True, False),  # No longer support 19.0
-        ("21.5", False, False, True, False),  # Don't support hypothetical future version
-        ("20.0", False, False, False, False),
-        ("21.0", False, False, False, False),
-        ("21.0", False, False, False, True),  # Dockerfile directory is missing
+        # Tests for versions no longer supported
+        ("19.0", "", False, False, True, False),
+        ("19.5", "", True, True, True, False),
+        ("20.0", "", True, False, True, False),
+        ("", "20.0", True, False, True, False),  # Handle an unsupported version as the most recent production build
+        # Don't support hypothetical future version
+        ("21.5", "", False, False, True, False),
+        # Tests for permutations of valid options.
+        ("21.0", "", False, False, False, False),
+        ("21.0", "", True, False, False, False),
+        ("21.0", "", False, False, False, True),  # Dockerfile directory is missing
     ),
 )
-def test_check_build_can_be_installed(mocker, version, tag_exists, force, unsupported, no_dockerfile):
+def test_check_build_can_be_installed(
+    mocker, explicit_version, implicit_version, tag_exists, force, unsupported, no_dockerfile
+):
     """Test hython_docker_image_builder.build.check_build_can_be_installed()."""
     mock_service = mocker.MagicMock(spec=sidefx._Service)
 
+    returned_version = explicit_version or implicit_version
+
     mocker.patch(
-        "hython_docker_image_builder.builder._get_target_release", return_value={"version": version, "build": "724"}
+        "hython_docker_image_builder.builder._get_target_release",
+        return_value={"version": returned_version, "build": "724"},
     )
 
     mocker.patch("hython_docker_image_builder.builder.docker.check_tag_exists", return_value=tag_exists)
@@ -185,17 +194,21 @@ def test_check_build_can_be_installed(mocker, version, tag_exists, force, unsupp
     if no_dockerfile:
         mocker.patch.object(pathlib.Path, "is_dir", return_value=False)
 
-    raiser = pytest.raises(RuntimeError) if unsupported or no_dockerfile else contextlib.nullcontext()
+    raiser = (
+        pytest.raises(RuntimeError)
+        if (unsupported and not implicit_version) or no_dockerfile
+        else contextlib.nullcontext()
+    )
 
     with raiser:
-        result = builder.check_build_can_be_installed(mock_service, version, "name/repo", force=force)
+        result = builder.check_build_can_be_installed(mock_service, explicit_version, "name/repo", force=force)
 
         if tag_exists and not force:
             assert result == {}
 
         else:
             assert result == {
-                "version": version,
+                "version": explicit_version,
                 "build": "724",
                 "launcher_name": mock_launcher.name,
                 "iso_name": mock_archive.name,

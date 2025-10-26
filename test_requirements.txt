@@ -1,0 +1,5 @@
+pytest
+pytest-cov
+pytest-datadir
+pytest-mock
+pytest-subprocess

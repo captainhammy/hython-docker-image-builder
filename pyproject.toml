@@ -104,6 +104,8 @@
         "tests/*.py" = [
             "PLR2004",  # Magic value in comparison
             "PLR6301",  # 'no-self-use' for tests
+            "PLR0913", # Too many arguments
+            "PLR0917", # Too many positional arguments
             "PT006",  # tuple for parametrized names
             "PT007",  # tuple for parametrized values
         ]
@@ -113,6 +115,3 @@
 
     [tool.ruff.lint.pydocstyle]
         convention = "google"
-
-    [tool.ruff.lint.pylint]
-        max-args = 6
