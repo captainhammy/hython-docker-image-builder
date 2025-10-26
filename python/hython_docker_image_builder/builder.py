@@ -20,7 +20,7 @@ from hython_docker_image_builder import docker
 TOKEN_URL = "https://www.sidefx.com/oauth2/application_token"
 ENDPOINT_URL = "https://www.sidefx.com/api/"
 
-SUPPORTED_MAJOR_MINOR_VERSIONS = ("19.5", "20.0", "20.5", "21.0")
+SUPPORTED_MAJOR_MINOR_VERSIONS = ("20.5", "21.0")
 
 # Non-Public Functions
 
@@ -201,7 +201,14 @@ def check_build_can_be_installed(service: sidefx._Service, version_arg: str, tag
 
     version = target_release["version"]
 
+    # Check if the version is supported.
     if version not in SUPPORTED_MAJOR_MINOR_VERSIONS:
+        # If the version is not supported, and the version request wasn't explicit, we
+        # will bail and not build anything.
+        if not version_arg:
+            return {}
+
+        # However, if a specific version was passed, we should fail and error.
         raise RuntimeError(f"Major version {version} is not supported.")
 
     # Create the 'full' version here since the passed in version could be something like
