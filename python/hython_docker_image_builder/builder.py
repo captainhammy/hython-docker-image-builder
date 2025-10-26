@@ -206,6 +206,7 @@ def check_build_can_be_installed(service: sidefx._Service, version_arg: str, tag
         # If the version is not supported, and the version request wasn't explicit, we
         # will bail and not build anything.
         if not version_arg:
+            print(f"Latest found production build of version {version} is not supported, skipping")
             return {}
 
         # However, if a specific version was passed, we should fail and error.
