@@ -82,6 +82,11 @@ ENV _CONTAINER_PYTHON_VERSION=3.11
 
 ARG REZ_DIR="/opt/rez"
 
+# Copy in our rezconfig.py file to the rez install directory and sent the config env
+# var to point to it.
+COPY rezconfig.py ${REZ_DIR}/
+ENV REZ_CONFIG_FILE=${REZ_DIR}/rezconfig.py
+
 # Clone custom bind files and add them to the search bath
 ADD https://github.com/captainhammy/rez-bind-files.git ${REZ_DIR}/bind_files
 ENV REZ_BIND_MODULE_PATH=${REZ_DIR}/bind_files/bind
@@ -122,23 +127,11 @@ RUN mkdir ${_REZ_PACKAGE_DIR} \
     && rez-pip --install pytest-qt \
     && rez-pip --install pytest-subprocess \
     && rez-pip --install python_singleton \
+    && rez-pip --install Qt.py \
     && rez-pip --install ruff \
     && rez-pip --install scipy \
     && rez-pip --install sphinx \
     && rez-pip --install tox
-
-# Qt.py currently has issues being installed by rez-pip, so build the latest
-# tag from source.
-# Even this no longer works, so we will skip for now.
-#RUN git -C /tmp clone https://github.com/mottosso/Qt.py.git \
-#    && cd /tmp/Qt.py \
-#    && git fetch --tags \
-#    && latestTag=$(git describe --tags `git rev-list --tags --max-count=1`) \
-#    && git checkout $latestTag \
-#    && python3 setup.py bdist_wheel \
-#    && rez-pip -i dist/qt_py-$latestTag-*.whl \
-#    && cd - \
-#    && rm -rf /tmp/Qt.py
 
 # Install Houdini Rez CMake tools
 RUN git -C /tmp/ clone https://github.com/captainhammy/houdini-rez-cmake-tools.git \

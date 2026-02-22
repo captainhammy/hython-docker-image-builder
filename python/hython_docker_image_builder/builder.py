@@ -17,6 +17,7 @@ import requests
 import sidefx  # type: ignore
 from hython_docker_image_builder import docker
 
+# Globals
 TOKEN_URL = "https://www.sidefx.com/oauth2/application_token"
 ENDPOINT_URL = "https://www.sidefx.com/api/"
 

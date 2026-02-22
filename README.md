@@ -101,6 +101,6 @@ packages which are designed to help facilitate testing.
 ### Other
 - [numpy](https://pypi.org/project/numpy/) - The installed version matches that of the VFX Platform year 
 - [PySide2](https://pypi.org/project/PySide2/) or [PySide6](https://pypi.org/project/PySide6/) - The installed version matches that of the VFX Platform year 
-- [Qt.py](https://pypi.org/project/Qt.py/) - Qt.py is currently not provided for images featuring Qt6 (21.0)
+- [Qt.py](https://pypi.org/project/Qt.py/)
 - [scipy](https://pypi.org/project/scipy/)
 - [sphinx](https://pypi.org/project/Sphinx/)
