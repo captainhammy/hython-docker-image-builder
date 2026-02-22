@@ -95,6 +95,7 @@
             "D105",  # Missing docstring in magic method
             "D107",  # Missing docstring in __init__
             "TRY003",  # Exception long messages
+            "I001",  # Import sort order conflicts with isort
         ]
 
     [tool.ruff.lint.per-file-ignores]
