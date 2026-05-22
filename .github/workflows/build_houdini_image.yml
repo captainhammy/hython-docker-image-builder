@@ -53,10 +53,6 @@ jobs:
           sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1 || true
           df . -h
 
-      - name: Copy default pip packages file
-        if: steps.checker.outputs.build_version != ''
-        run: cp dockerfiles/default_pip_packages.txt dockerfiles/${{ steps.checker.outputs.build_version }}/
-
       - name: Set up QEMU
         if: steps.checker.outputs.build_version != ''
         uses: docker/setup-qemu-action@v3

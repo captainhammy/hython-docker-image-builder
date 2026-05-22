@@ -1,4 +1,0 @@
-coverage
-requests
-tox
-tox-gh-actions

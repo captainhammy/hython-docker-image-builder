@@ -88,19 +88,11 @@ packages which are designed to help facilitate testing.
 - [pytest-mock](https://pypi.org/project/pytest-mock/)
 - [pytest-qt](https://pypi.org/project/pytest-qt/)
 - [pytest-subprocess](https://pypi.org/project/pytest-subprocess/)
-- [tox](https://pypi.org/project/tox/)
-   
-### Linting and Analysis
-- [black](https://pypi.org/project/black/)
-- [isort](https://pypi.org/project/isort/)
-- [mypy](https://pypi.org/project/mypy/)
-- [pydocstringformatter](https://pypi.org/project/pydocstringformatter/)
-- [pylint](https://pypi.org/project/pylint/)
-- [ruff](https://pypi.org/project/ruff/) 
- 
+
 ### Other
+- [humanfriendly](https://pypi.org/project/humanfriendly/)
 - [numpy](https://pypi.org/project/numpy/) - The installed version matches that of the VFX Platform year 
 - [PySide2](https://pypi.org/project/PySide2/) or [PySide6](https://pypi.org/project/PySide6/) - The installed version matches that of the VFX Platform year 
+- [python_singleton](https://pypi.org/project/python-singleton/)
 - [Qt.py](https://pypi.org/project/Qt.py/)
 - [scipy](https://pypi.org/project/scipy/)
-- [sphinx](https://pypi.org/project/Sphinx/)
