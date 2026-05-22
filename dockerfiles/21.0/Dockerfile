@@ -16,9 +16,6 @@ ENV TZ=Etc/UTC
 
 WORKDIR /tmp/houdini_installation
 
-# Copy in the default list of pip packages to install.
-COPY default_pip_packages.txt ./
-
 # Copy in the installer files.
 ADD --chmod=755 ${HOUDINI_INSTALLER_FILENAME} ${HOUDINI_ISO_FILENAME} ./
 
@@ -46,10 +43,7 @@ RUN apt update \
     # Download and install the latest pip.
     && wget https://bootstrap.pypa.io/get-pip.py \
     && python${PYTHON_VERSION} get-pip.py \
-    && rm get-pip.py \
-    # Install a selection of default packages we want available in the container.
-    && python -m pip install -r ./default_pip_packages.txt \
-    && rm ./default_pip_packages.txt
+    && rm get-pip.py
 
 # Install Houdini and the license server.
 # Create '/usr/share/applications/' first, if it doesnt exist, so the installer won't fail trying to install shortcuts.
@@ -107,18 +101,18 @@ ENV REZ_LOCAL_PACKAGES_PATH=${_REZ_PACKAGE_DIR}
 
 # Bind and install rez packages.
 RUN mkdir ${_REZ_PACKAGE_DIR} \
-    && rez-bind --quickstart \
+    && rez-bind platform \
+    && rez-bind arch \
+    && rez-bind os \
+    && rez-bind python \
+    && rez-bind rez\
+    && rez-bind pip \
     && rez-bind houdini ${HOUDINI_INSTALL_DIR} \
     && rez-bind cmake \
     && rez-bind gcc --exe /usr/bin/gcc-11 \
-    && rez-pip --install black \
     && rez-pip --install humanfriendly \
-    && rez-pip --install isort \
-    && rez-pip --install mypy[toml] \
     && rez-pip --install 'numpy<1.27' \
     && rez-pip --install 'PySide6<6.6' \
-    && rez-pip --install pydocstringformatter \
-    && rez-pip --install pylint \
     && rez-pip --install pytest \
     && rez-pip --install pytest-cov \
     && rez-pip --install pytest-datadir \
@@ -128,10 +122,7 @@ RUN mkdir ${_REZ_PACKAGE_DIR} \
     && rez-pip --install pytest-subprocess \
     && rez-pip --install python_singleton \
     && rez-pip --install Qt.py \
-    && rez-pip --install ruff \
-    && rez-pip --install scipy \
-    && rez-pip --install sphinx \
-    && rez-pip --install tox
+    && rez-pip --install scipy
 
 # Install Houdini Rez CMake tools
 RUN git -C /tmp/ clone https://github.com/captainhammy/houdini-rez-cmake-tools.git \
