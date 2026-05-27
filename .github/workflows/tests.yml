@@ -9,16 +9,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Mark workspace as safe
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-         python-version: 3.11
+         python-version: 3.13
 
-      - name: Install dependencies
-        run: python3 -m pip install tox tox-gh-actions
+      - name: Install execution dependencies
+        run: python3 -m pip install --group "github"
 
+      # Run static analysis tox tests
       - name: Test with tox
-        run: tox
+        run: tox -m static
+
+      # Test code
+      - name: Test code with tox
+        run: tox -m test
