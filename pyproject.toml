@@ -1,11 +1,80 @@
-[build-system]
-    requires = ["setuptools>=42", "setuptools_scm[toml]>=6.2", "wheel"]
-    build-backend = "setuptools.build_meta"
+[project]
+name = "hython_docker_image_builder"
 
-[tool.pytest.ini_options]
-    addopts = "--cov --cov-report=html --cov-report=xml --cov-fail-under=100 --color=yes"
+requires-python = ">=3.13"
+dependencies = [
+    "requests",
+    "urllib3"
+]
+
+[dependency-groups]
+    deps = ["requests", "urllib3"]
+    docstrings = ["pydocstringformatter"]
+    github = ["coverage", "tox"]
+    isort = ["isort"]
+    mypy = ["mypy[toml]", "types-requests", "types-PyYAML"]
+    ruff = ["ruff"]
+    test = ["pytest", "pytest_cov", "pytest_datadir", "pytest_mock", "pytest-subprocess"]
+
+[tool.tox]
+    env_list = ["py313", "ruff-check", "ruff-format-check", "isort-check", "mypy", "docstring-check"]
+    labels = {test = ["py313"], static = ["ruff-check", "ruff-format-check", "isort-check", "mypy", "docstring-check"], fix = ["ruff-format-fix", "isort-run", "docstring-run"] }
+    no_package = true
+
+    [tool.tox.env.py313]
+        allowlist_externals = ["echo"]
+        dependency_groups = ["deps", "test"]
+        set_env = {PYTHONPATH = "{toxinidir}/python"}
+        commands = [["pytest", "tests/python"]]
+        commands_post = [["echo", "View test coverage report at file://{toxinidir}/coverage_html_report/index.html"]]
+
+    [tool.tox.env.ruff-check]
+        dependency_groups = ["ruff"]
+        commands = [[ "ruff", "check", "--preview", "bin/", "python/hython_docker_image_builder/", "tests/"]]
+
+    [tool.tox.env.ruff-format-check]
+        dependency_groups = ["ruff"]
+        commands = [[ "ruff", "format", "--preview", "--check", "--diff", "bin/", "python/hython_docker_image_builder/", "tests/"]]
+
+    [tool.tox.env.ruff-format-fix]
+        dependency_groups = ["ruff"]
+        commands = [[ "ruff", "format", "--preview", "bin/", "python/hython_docker_image_builder/", "tests/"]]
+
+    [tool.tox.env.isort-check]
+        dependency_groups = ["isort"]
+        commands = [[ "isort", "--check", "bin/", "python/hython_docker_image_builder/", "tests/"]]
+
+    [tool.tox.env.isort-run]
+        dependency_groups = ["isort"]
+        commands = [[ "isort", "bin/", "python/hython_docker_image_builder/", "tests/"]]
+
+    [tool.tox.env.mypy]
+        dependency_groups = ["deps", "mypy"]
+        commands = [[ "mypy", "bin", "python/hython_docker_image_builder"]]
+
+    [tool.tox.env.docstring-check]
+        dependency_groups = ["docstrings"]
+        commands = [[ "pydocstringformatter", "--exit-code", "bin/", "python/hython_docker_image_builder/"]]
+
+    [tool.tox.env.docstring-run]
+        dependency_groups = ["docstrings"]
+        commands = [[ "pydocstringformatter", "--write", "bin/", "python/hython_docker_image_builder/"]]
+
+[tool.pytest]
+    addopts = ["--cov", "--cov-report=html", "--cov-report=xml", "--cov-fail-under=100", "--color=yes"]
 
 [tool.coverage]
+    [tool.coverage.html]
+        directory = "coverage_html_report"
+    [tool.coverage.report]
+        exclude_lines = [
+            # Have to re-enable the standard pragma
+            "pragma: no cover",
+            "def __repr__",
+            "if TYPE_CHECKING",
+        ]
+        ignore_errors = true
+        skip_empty = true
 
     [tool.coverage.run]
         branch = true
@@ -18,29 +87,6 @@
         disable_warnings = [
             "module-not-measured",
         ]
-    [tool.coverage.report]
-        exclude_lines = [
-            # Have to re-enable the standard pragma
-            "pragma: no cover",
-
-            # Don't complain about missing debug-only code:
-            "def __repr__",
-            "if self.debug",
-            "if TYPE_CHECKING",
-
-            # Don't complain if tests don't hit defensive assertion code:
-            "raise AssertionError",
-            "raise NotImplementedError",
-
-            # Don't complain if non-runnable code isn't run:
-            "if 0:",
-            "if __name__ == .__main__.:",
-        ]
-        ignore_errors = true
-        skip_empty = true
-
-    [tool.coverage.html]
-        directory = "coverage_html_report"
 
 [tool.isort]
     profile = "black"
@@ -54,10 +100,10 @@
     indented_import_headings = false
 
 [tool.mypy]
-    modules = ["hython_docker_image_builder"]
     disallow_incomplete_defs = true
     disallow_untyped_calls = true
     disallow_untyped_defs = true
+    follow_imports = "skip"
 
 [tool.ruff]
     line-length = 120
@@ -110,9 +156,6 @@
             "PT006",  # tuple for parametrized names
             "PT007",  # tuple for parametrized values
         ]
-
-    [tool.ruff.lint.flake8-pytest-style]
-        fixture-parentheses = false  # Match actual pytest recommendation with no parentheses
 
     [tool.ruff.lint.pydocstyle]
         convention = "google"

@@ -1,9 +1,13 @@
 ARG OS_IMAGE=ubuntu:noble
+ARG PYTHON_VERSION=3.11
+ARG GCC_VERSION=11
 
 FROM ${OS_IMAGE} AS houdini-install
 
 ARG EULA_DATE=2021-10-13
-ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION
+ARG GCC_VERSION
+ARG NODEJS_VERSION=24
 
 ARG HOUDINI_VERSION
 ARG HOUDINI_INSTALL_DIR=/opt/hfs${HOUDINI_VERSION}
@@ -21,13 +25,13 @@ ADD --chmod=755 ${HOUDINI_INSTALLER_FILENAME} ${HOUDINI_ISO_FILENAME} ./
 
 RUN apt update \
     && apt upgrade -y \
-    && apt install -y tzdata csh curl git pkg-config procps wget software-properties-common gcc-11 g++-11 libglu1-mesa libsm6 bc libnss3 libx11-6 libx11-xcb1 libxcb1 libxcb1-dev libxcb-icccm4 libx11-xcb-dev libxrandr2 libxcomposite-dev libxdamage1 libxcursor1 libxi6 libxkbcommon-x11-0 libxtst6 libfontconfig1 libxss1 libpci3 libasound2t64 libx11-dev libxi-dev libgl-dev build-essential gfortran cmake \
+    && apt install -y tzdata csh curl git pkg-config procps wget software-properties-common gcc-${GCC_VERSION} g++-${GCC_VERSION} libglu1-mesa libsm6 bc libnss3 libx11-6 libx11-xcb1 libxcb1 libxcb1-dev libxcb-icccm4 libx11-xcb-dev libxrandr2 libxcomposite-dev libxdamage1 libxcursor1 libxi6 libxkbcommon-x11-0 libxtst6 libfontconfig1 libxss1 libpci3 libasound2t64 libx11-dev libxi-dev libgl-dev build-essential gfortran cmake \
     # Python 3.11 for noble is not available in the standard repositories so we'll need to access it from deadsnakes.
     && add-apt-repository -y ppa:deadsnakes/ppa \
     && apt update \
     && apt install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv \
-    # Install a newer version of nodejs to work better with certain github actions.
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    # Install a specific version of nodejs so that it is compatible with various github actions.
+    && curl -fsSL https://deb.nodesource.com/setup_${NODEJS_VERSION}.x | bash - \
     && apt install -y nodejs \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* \
@@ -71,8 +75,11 @@ ARG HOUDINI_VERSION
 ARG HOUDINI_INSTALL_DIR=/opt/hfs${HOUDINI_VERSION}
 ENV HFS=${HOUDINI_INSTALL_DIR}
 
+ARG PYTHON_VERSION
+ARG GCC_VERSION
+
 # Keep track of this for testing purposes.
-ENV _CONTAINER_PYTHON_VERSION=3.11
+ENV _CONTAINER_PYTHON_VERSION=${PYTHON_VERSION}
 
 ARG REZ_DIR="/opt/rez"
 
@@ -107,9 +114,10 @@ RUN mkdir ${_REZ_PACKAGE_DIR} \
     && rez-bind python \
     && rez-bind rez\
     && rez-bind pip \
+    && rez-pip --install setuptools \
     && rez-bind houdini ${HOUDINI_INSTALL_DIR} \
     && rez-bind cmake \
-    && rez-bind gcc --exe /usr/bin/gcc-11 \
+    && rez-bind gcc --exe /usr/bin/gcc-${GCC_VERSION} \
     && rez-pip --install humanfriendly \
     && rez-pip --install 'numpy<1.27' \
     && rez-pip --install 'PySide6<6.6' \
