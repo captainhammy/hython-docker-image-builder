@@ -34,7 +34,7 @@ jobs:
          python-version: 3.13
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: python3 -m pip install --group "deps"
 
       # Update our PYTHONPATH so that it can execute our own repository tools.
       - name: Set Local PYTHONPATH
