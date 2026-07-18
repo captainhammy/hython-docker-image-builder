@@ -2,7 +2,7 @@ name: Docker Image Builder
 
 on:
   schedule:
-    # Run every day at 9:15 PM UTC which should be after any time
+    # Run every day at 9:15 PM UTC, which should be after any time
     # SideFX would have updated the production builds.
     - cron: '15 21 * * *'
 
@@ -26,24 +26,31 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
          python-version: 3.13
 
-      - name: Install dependencies
-        run: python3 -m pip install --group "deps"
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          virtualenvs-path: .venv
+          installer-parallel: true
 
-      # Update our PYTHONPATH so that it can execute our own repository tools.
-      - name: Set Local PYTHONPATH
-        run: |
-          echo "PYTHONPATH=${GITHUB_WORKSPACE}/python:${PYTHONPATH}" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+
+      - name: Install project
+        run: poetry install --no-interaction --no-root
 
       - name: Check for build
         id: checker
         run: |
+          source .venv/bin/activate
           python bin/get_houdini_version_to_build.py ${{ env.FORCE_BUILD == 'true' && '--force' || '' }} ${{ inputs.houdini-version || '""' }} ${{ env.TAG_NAME }} ${{ secrets.SESI_CLIENT_ID }} ${{ secrets.SESI_CLIENT_SECRET }}
 
       - name: Ensure disk space
@@ -53,24 +60,24 @@ jobs:
           sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1 || true
           df . -h
 
-      - name: Set up QEMU
-        if: steps.checker.outputs.build_version != ''
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        if: steps.checker.outputs.build_version != ''
-        uses: docker/setup-buildx-action@v3
-
       - name: Login to Docker Hub
         if: steps.checker.outputs.build_version != ''
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set up QEMU
+        if: steps.checker.outputs.build_version != ''
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        if: steps.checker.outputs.build_version != ''
+        uses: docker/setup-buildx-action@v4
+
       - name: Build docker image
         if: steps.checker.outputs.build_version != ''
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: dockerfiles/${{ steps.checker.outputs.build_version }}
           # So we can test the image after building
@@ -79,7 +86,7 @@ jobs:
             HOUDINI_VERSION=${{ steps.checker.outputs.build_full_version }}
             HOUDINI_INSTALLER_FILENAME=${{ steps.checker.outputs.houdini_launcher_filename }}
             HOUDINI_ISO_FILENAME=${{ steps.checker.outputs.houdini_iso_filename }}
-          # Tag the new image with the full version and the major.minor (e.g. 20.0.724, 20.0)
+          # Tag the new image with the full version and the major.minor (e.g., 20.0.724, 20.0)
           tags: ${{ env.TAG_NAME }}:${{ steps.checker.outputs.build_full_version }},${{ env.TAG_NAME }}:${{ steps.checker.outputs.build_version }}
 
       - name: Test built image

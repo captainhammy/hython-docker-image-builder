@@ -1,4 +1,4 @@
-"""Builder related functions."""
+"""Functions related to building images."""
 
 # Future
 from __future__ import annotations
@@ -14,14 +14,18 @@ from operator import itemgetter
 import requests
 
 # hython_docker_image_builder
-import sidefx  # type: ignore
+import sidefx
 from hython_docker_image_builder import docker
 
 # Globals
 TOKEN_URL = "https://www.sidefx.com/oauth2/application_token"
 ENDPOINT_URL = "https://www.sidefx.com/api/"
 
-SUPPORTED_MAJOR_MINOR_VERSIONS = ("20.5", "21.0")
+SUPPORTED_MAJOR_MINOR_VERSIONS = (
+    "20.5",
+    "21.0",
+    "22.0",
+)
 
 # Non-Public Functions
 
@@ -40,11 +44,11 @@ def _determine_version_info(version_arg: str) -> tuple[str | None, str | None]:
     if version_arg:
         components = version_arg.split(".")
 
-        if len(components) < 2:  # noqa: PLR2004
+        if len(components) < 2:  # ruff:ignore[magic-value-comparison]
             raise RuntimeError(f"Invalid version argument: {version_arg} must have at least 2 components")
 
         major_minor = ".".join(components[:2])
-        build = ".".join(components[2:]) if len(components) > 2 else None  # noqa: PLR2004
+        build = ".".join(components[2:]) if len(components) > 2 else None  # ruff:ignore[magic-value-comparison]
 
     else:
         major_minor = None
@@ -73,40 +77,19 @@ def _download_file(url: str, target: pathlib.Path) -> None:
         raise RuntimeError(f"Error downloading file. Returned code {r.status_code}")
 
 
-def _download_product(
-    service: sidefx._Service, release: dict, product: str, target_folder: pathlib.Path
-) -> pathlib.Path:
-    """Download the desired product.
+def _determine_release(releases: list[dict], build: str | None) -> dict:
+    """Determine which of the available releases to install.
 
     Args:
-        service: The SideFX Web API connection.
-        release: The build information dictionary.
-        product: The product name to download.
-        target_folder: The folder to save the downloaded product.
+        releases: A list of available releases.
+        build: The target build to install, if any.
 
     Returns:
-        The downloaded file path.
+        The release to install.
+
+    Raises:
+        RuntimeError: If the target build was specified, but could not be found.
     """
-    product_info = service.download.get_daily_build_download(
-        product=product,
-        version=release["version"],
-        build=release["build"],
-        platform="linux",
-    )
-
-    target = target_folder / product_info["filename"]
-
-    _download_file(product_info["download_url"], target)
-
-    print(f"Downloaded file: {target.resolve().as_posix()}")
-
-    # Verify the file checksum is matching
-    _verify_checksum(target, product_info["hash"])
-
-    return target
-
-
-def _determine_release(releases: list[dict], build: str | None) -> dict:
     if build is not None:
         # Check all the releases for one that matches the target build.
         for release in releases:
@@ -120,47 +103,13 @@ def _determine_release(releases: list[dict], build: str | None) -> dict:
 
     else:
         # Sort the releases by date to actually get the latest production build.
-        # Without doing this, a new build of an older version (e.g. 19.5) would
-        # not be found if any build of a newer version (e.g. 20.0) existed.
+        # Without doing this, a new build of an older version (e.g., 19.5) would
+        # not be found if any build of a newer version (e.g., 20.0) existed.
         releases.sort(key=itemgetter("date"))
 
         release_to_install = releases[-1]
 
     return release_to_install
-
-
-def _get_target_release(service: sidefx._Service, version_arg: str) -> dict:
-    """Get the target release to install.
-
-    `version_arg` can be empty, a {major.minor} or {major.minor.build} type
-    string. If the value is empty, the most recent production build is chosen.
-    If it is a {major.minor}, then that is used to find the latest production build of
-    that release.
-
-    Args:
-        service: The SideFX Web API connection.
-        version_arg: A version string to use in determining which version to install.
-
-    Returns:
-        The target release dictionary.
-
-    Raises:
-        RuntimeError: No matching version could be found to install.
-    """
-    major_minor, build = _determine_version_info(version_arg)
-
-    releases_list = service.download.get_daily_builds_list(
-        product="houdini",
-        version=major_minor,
-        platform="linux",
-        # If no specific build was set, we'll ask for a matching Production build.
-        only_production=not bool(build),
-    )
-
-    if not releases_list:
-        raise RuntimeError(f"No releases matching {major_minor} could be found.")
-
-    return _determine_release(releases_list, build)
 
 
 def _verify_checksum(file_path: pathlib.Path, expected_hash: str) -> None:
@@ -198,7 +147,7 @@ def check_build_can_be_installed(service: sidefx._Service, version_arg: str, tag
     Raises:
         RuntimeError: Raised if the requested {major.minor} version is not supported.
     """
-    target_release = _get_target_release(service, version_arg)
+    target_release = get_target_release(service, version_arg)
 
     version = target_release["version"]
 
@@ -230,8 +179,8 @@ def check_build_can_be_installed(service: sidefx._Service, version_arg: str, tag
     if not build_folder.is_dir():
         raise RuntimeError(f"Cannot find dockerfiles for {version}")
 
-    launcher = _download_product(service, target_release, "houdini-launcher", build_folder)
-    archive = _download_product(service, target_release, "launcher-iso", build_folder)
+    launcher = download_product(service, target_release, "houdini-launcher", build_folder)
+    archive = download_product(service, target_release, "launcher-iso", build_folder)
 
     return {
         "version": version,
@@ -239,6 +188,39 @@ def check_build_can_be_installed(service: sidefx._Service, version_arg: str, tag
         "launcher_name": launcher.name,
         "iso_name": archive.name,
     }
+
+
+def download_product(
+    service: sidefx._Service, release: dict, product: str, target_folder: pathlib.Path
+) -> pathlib.Path:
+    """Download the desired product.
+
+    Args:
+        service: The SideFX Web API connection.
+        release: The build information dictionary.
+        product: The product name to download.
+        target_folder: The folder to save the downloaded product.
+
+    Returns:
+        The downloaded file path.
+    """
+    product_info = service.download.get_daily_build_download(
+        product=product,
+        version=release["version"],
+        build=release["build"],
+        platform="linux_x86_64",
+    )
+
+    target = target_folder / product_info["filename"]
+
+    _download_file(product_info["download_url"], target)
+
+    print(f"Downloaded file: {target.resolve().as_posix()}")
+
+    # Verify the file checksum is matching
+    _verify_checksum(target, product_info["hash"])
+
+    return target
 
 
 def get_service(client_id: str, client_secret: str) -> sidefx._Service:
@@ -251,9 +233,43 @@ def get_service(client_id: str, client_secret: str) -> sidefx._Service:
     Returns:
         A connection to the SideFX Web API.
     """
-    return sidefx.service(  # type: ignore
+    return sidefx.service(
         access_token_url=TOKEN_URL,
         client_id=client_id,
         client_secret_key=client_secret,
         endpoint_url=ENDPOINT_URL,
     )
+
+
+def get_target_release(service: sidefx._Service, version_arg: str) -> dict:
+    """Get the target release to install.
+
+    `version_arg` can be empty, a {major.minor} or {major.minor.build} type
+    string. If the value is empty, the most recent production build is chosen.
+    If it is a {major.minor}, then that is used to find the latest production build of
+    that release.
+
+    Args:
+        service: The SideFX Web API connection.
+        version_arg: A version string to use in determining which version to install.
+
+    Returns:
+        The target release dictionary.
+
+    Raises:
+        RuntimeError: No matching version could be found to install.
+    """
+    major_minor, build = _determine_version_info(version_arg)
+
+    releases_list = service.download.get_daily_builds_list(
+        product="houdini",
+        version=major_minor,
+        platform="linux",
+        # If no specific build was set, we'll ask for a matching Production build.
+        only_production=not bool(build),
+    )
+
+    if not releases_list:
+        raise RuntimeError(f"No releases matching {major_minor} could be found.")
+
+    return _determine_release(releases_list, build)
