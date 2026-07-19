@@ -1,4 +1,4 @@
-"""Docker related functions."""
+"""Functions related to Docker."""
 
 # Standard Library
 import subprocess

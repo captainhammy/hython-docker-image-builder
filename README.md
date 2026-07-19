@@ -20,22 +20,23 @@ LICENSE AGREEMENT](https://www.sidefx.com/legal/license-agreement/)
 Each image for a particular build of Houdini provides versions of related tools matching those of the [VFX Platform](https://vfxplatform.com/).
 
 Currently, all images provided are created using the **default** build of Houdini, which means libraries that match
-those of the VFX Platform year, and not builds with alternative Python or GCC versions.
+those of the VFX Platform year and not builds with alternative Python or GCC versions.
 
-| Houdini Version | Linux Image  | VFX Platform Year | Python Version | GCC Version    |
-|-----------------|--------------|-------------------|----------------| ---------------|
-| 21.0            | ubuntu:noble | 2025              | 3.11           | 11.2           |
-| 20.5            | ubuntu:noble | 2024              | 3.11           | 11.2           |
-| 20.0            | ubuntu:jammy | 2023              | 3.10           | 11.2           |
-| 19.5            | ubuntu:focal | 2022              | 3.9            | 9.3            |
+| Houdini Version | Linux Image      | VFX Platform Year | Python Version | GCC Version |
+|-----------------|------------------|-------------------|----------------|-------------|
+| 22.0            | ubuntu:noble     | 2026              | 3.13           | 14.2        |
+| 21.0            | ubuntu:noble     | 2025              | 3.11           | 11.2        |
+| ~~20.5~~        | ~~ubuntu:noble~~ | ~~2024~~          | ~~3.11~~       | ~~11.2~~    |
+| ~~20.0~~        | ~~ubuntu:jammy~~ | ~~2023~~          | ~~3.10~~       | ~~11.2~~    |
+| ~~19.5~~        | ~~ubuntu:focal~~ | ~~2022~~          | ~~3.9~~        | ~~9.3~~     |
 
 # Installed System Packages
 
 The following notable system packages are installed:
 
-- git - Available to allow you to check out code required for testing 
-- gcc / cmake / build related packages - Packages related to C++ compilation are included to enable building HDK plugins.
-- nodejs - Node.js (v20) is installed to facilitate various GitHub Action workflows which rely on it.
+- git – Available to allow you to check out code required for testing 
+- gcc / cmake / build-related packages – Packages related to C++ compilation are included to enable building HDK plugins.
+- nodejs - Node.js (v24) is installed to facilitate various GitHub Action workflows which rely on it.
 
 # Houdini Specifics
 
@@ -55,7 +56,7 @@ If you need any of these, it is recommended to explicitly source the setup file.
 
 ## License Setup
 
-The `hython-runner` containers do not have any Houdini licensing set up which means that Houdini related programs
+The `hython-runner` containers do not have any Houdini licensing configured, which means that Houdini related programs
 which require a license will not function by default. **You** are responsible for configuring your own licensing
 setup.
 
@@ -63,13 +64,13 @@ setup.
 
 It should be possible to compile HDK plugins right out of the box, using either `hcustom` or `cmake`.
 
-The `CMAKE_PREFIX_PATH` variable is defined and pointing to the `$HT/cmake` directory such that if you are using cmake
+The `CMAKE_PREFIX_PATH` variable is defined and pointing to the `$HT/cmake` directory so that if you are using cmake
 to compile HDK plugins, it will be able to find the Houdini config without additional setup.
 
 # Rez
 
 The [rez](https://rez.readthedocs.io/en/stable/) package manager is also available for workflows which use it. A number of already bound or installed
-packages which are designed to help facilitate testing.
+packages that are designed to help facilitate testing.
 
 
 ## Bound Rez Packages
@@ -91,8 +92,8 @@ packages which are designed to help facilitate testing.
 
 ### Other
 - [humanfriendly](https://pypi.org/project/humanfriendly/)
-- [numpy](https://pypi.org/project/numpy/) - The installed version matches that of the VFX Platform year 
-- [PySide2](https://pypi.org/project/PySide2/) or [PySide6](https://pypi.org/project/PySide6/) - The installed version matches that of the VFX Platform year 
+- [numpy](https://pypi.org/project/numpy/) – The installed version matches that of the VFX Platform year 
+- [PySide2](https://pypi.org/project/PySide2/) or [PySide6](https://pypi.org/project/PySide6/) – The installed version matches that of the VFX Platform year 
 - [python_singleton](https://pypi.org/project/python-singleton/)
 - [Qt.py](https://pypi.org/project/Qt.py/)
 - [scipy](https://pypi.org/project/scipy/)

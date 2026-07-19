@@ -1,5 +1,7 @@
 [project]
 name = "hython_docker_image_builder"
+description = "Package to build a hython docker image"
+version = "0.0.1"
 
 requires-python = ">=3.13"
 dependencies = [
@@ -8,55 +10,69 @@ dependencies = [
 ]
 
 [dependency-groups]
-    deps = ["requests", "urllib3"]
     docstrings = ["pydocstringformatter"]
     github = ["coverage", "tox"]
     isort = ["isort"]
-    mypy = ["mypy[toml]", "types-requests", "types-PyYAML"]
     ruff = ["ruff"]
-    test = ["pytest", "pytest_cov", "pytest_datadir", "pytest_mock", "pytest-subprocess"]
+    test = ["pytest", "pytest-cov", "pytest-datadir", "pytest-mock", "pytest-subprocess"]
+    ty = ["ty"]
+
+[tool.poetry]
+packages = [
+    {include = "hython_docker_image_builder", from="python"},
+    {include = "sidefx.py", from="python"},
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.tox]
-    env_list = ["py313", "ruff-check", "ruff-format-check", "isort-check", "mypy", "docstring-check"]
+    env_list = ["py313", "ruff-check", "ruff-format-check", "isort-check", "ty", "docstring-check"]
     labels = {test = ["py313"], static = ["ruff-check", "ruff-format-check", "isort-check", "mypy", "docstring-check"], fix = ["ruff-format-fix", "isort-run", "docstring-run"] }
-    no_package = true
 
     [tool.tox.env.py313]
         allowlist_externals = ["echo"]
-        dependency_groups = ["deps", "test"]
-        set_env = {PYTHONPATH = "{toxinidir}/python"}
+        dependency_groups = ["test"]
         commands = [["pytest", "tests/python"]]
         commands_post = [["echo", "View test coverage report at file://{toxinidir}/coverage_html_report/index.html"]]
 
     [tool.tox.env.ruff-check]
+        skip_install = true
         dependency_groups = ["ruff"]
         commands = [[ "ruff", "check", "--preview", "bin/", "python/hython_docker_image_builder/", "tests/"]]
 
     [tool.tox.env.ruff-format-check]
+        skip_install = true
         dependency_groups = ["ruff"]
         commands = [[ "ruff", "format", "--preview", "--check", "--diff", "bin/", "python/hython_docker_image_builder/", "tests/"]]
 
     [tool.tox.env.ruff-format-fix]
+        skip_install = true
         dependency_groups = ["ruff"]
         commands = [[ "ruff", "format", "--preview", "bin/", "python/hython_docker_image_builder/", "tests/"]]
 
     [tool.tox.env.isort-check]
+        skip_install = true
         dependency_groups = ["isort"]
         commands = [[ "isort", "--check", "bin/", "python/hython_docker_image_builder/", "tests/"]]
 
     [tool.tox.env.isort-run]
+        skip_install = true
         dependency_groups = ["isort"]
         commands = [[ "isort", "bin/", "python/hython_docker_image_builder/", "tests/"]]
 
-    [tool.tox.env.mypy]
-        dependency_groups = ["deps", "mypy"]
-        commands = [[ "mypy", "bin", "python/hython_docker_image_builder"]]
+    [tool.tox.env.ty]
+        dependency_groups = ["ty", "test"]
+        commands = [[ "ty", "check", "bin/", "python/hython_docker_image_builder/", "tests/"]]
 
     [tool.tox.env.docstring-check]
+        skip_install = true
         dependency_groups = ["docstrings"]
         commands = [[ "pydocstringformatter", "--exit-code", "bin/", "python/hython_docker_image_builder/"]]
 
     [tool.tox.env.docstring-run]
+        skip_install = true
         dependency_groups = ["docstrings"]
         commands = [[ "pydocstringformatter", "--write", "bin/", "python/hython_docker_image_builder/"]]
 
@@ -105,6 +121,13 @@ dependencies = [
     disallow_untyped_defs = true
     follow_imports = "skip"
 
+[tool.ty]
+    [tool.ty.analysis]
+        allowed-unresolved-imports = ["sidefx"]
+
+    [tool.ty.environment]
+        root = ["./python"]
+
 [tool.ruff]
     line-length = 120
 
@@ -126,6 +149,8 @@ dependencies = [
             "LOG",  #  flake8-logging
             "BLE",  # flake8-blind-except
             "A",  # flake8-builtins
+            "ANN",  # flake8-annotations
+            "Q", # flake8-quotes
             "C4",  # flake8-comprehensions
             "RET",  # flake8-return
             "SIM",  # flake8-simplify
@@ -140,7 +165,8 @@ dependencies = [
             "D104",  # Missing docstring in public module
             "D105",  # Missing docstring in magic method
             "D107",  # Missing docstring in __init__
-            "TRY003",  # Exception long messages
+            "FBT001",  # Boolean type hint
+            "TRY003",  # Long exception messages
             "I001",  # Import sort order conflicts with isort
         ]
 

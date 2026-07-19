@@ -1,6 +1,6 @@
 ARG OS_IMAGE=ubuntu:noble
-ARG PYTHON_VERSION=3.11
-ARG GCC_VERSION=11
+ARG PYTHON_VERSION=3.13
+ARG GCC_VERSION=14
 
 FROM ${OS_IMAGE} AS houdini-install
 
@@ -25,8 +25,8 @@ ADD --chmod=755 ${HOUDINI_INSTALLER_FILENAME} ${HOUDINI_ISO_FILENAME} ./
 
 RUN apt update \
     && apt upgrade -y \
-    && apt install -y tzdata csh curl git pkg-config procps wget software-properties-common ${GCC_VERSION} g++-${GCC_VERSION} libglu1-mesa libsm6 bc libnss3 libx11-6 libx11-xcb1 libxcb1 libxcb1-dev libxcb-icccm4 libx11-xcb-dev libxrandr2 libxcomposite-dev libxdamage1 libxcursor1 libxi6 libxkbcommon-x11-0 libxtst6 libfontconfig1 libxss1 libpci3 libasound2t64 libx11-dev libxi-dev libgl-dev build-essential gfortran cmake \
-    # Python 3.11 for noble is not available in the standard repositories so we'll need to access it from deadsnakes.
+    && apt install -y tzdata csh curl git pkg-config procps wget software-properties-common gcc-${GCC_VERSION} g++-${GCC_VERSION} libglu1-mesa libsm6 bc libnss3 libx11-6 libx11-xcb1 libxcb1 libxcb1-dev libxcb-icccm4 libx11-xcb-dev libxrandr2 libxcomposite-dev libxdamage1 libxcursor1 libxi6 libxkbcommon-x11-0 libxtst6 libfontconfig1 libxss1 libpci3 libasound2t64 libx11-dev libxi-dev libgl-dev build-essential gfortran cmake \
+    # Python 3.13 for noble is not available in the standard repositories so we'll need to access it from deadsnakes.
     && add-apt-repository -y ppa:deadsnakes/ppa \
     && apt update \
     && apt install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv \
@@ -50,13 +50,12 @@ RUN apt update \
     && rm get-pip.py
 
 # Install Houdini and the license server.
-# Create '/usr/share/applications/' first, if it doesnt exist, so the installer won't fail trying to install shortcuts.
 RUN ./${HOUDINI_INSTALLER_FILENAME} --no-desktop-menus --quiet launcher \
     && launcher/bin/houdini_installer install Houdini --accept-EULA SideFX-${EULA_DATE} --accept-EULA SideFX-Beta-${EULA_DATE} --offline-installer ${HOUDINI_ISO_FILENAME} --desktop-menus no --installdir ${HOUDINI_INSTALL_DIR} \
     && launcher/bin/houdini_installer install "License Server" --accept-EULA SideFX-${EULA_DATE} --accept-EULA  SideFX-Beta-${EULA_DATE} --offline-installer ${HOUDINI_ISO_FILENAME} \
     # We're done with the launcher and source files so we can remove them all.
     # Also, remove extra files we don't want to slim down the eventual image.
-    && rm -rf /tmp/houdini_installation ${HOUDINI_INSTALL_DIR}/houdini/pic ${HOUDINI_INSTALL_DIR}/houdini/help ${HOUDINI_INSTALL_DIR}/houdini/public
+    && rm -rf /tmp/houdini_installation ${HOUDINI_INSTALL_DIR}/houdini/pic ${HOUDINI_INSTALL_DIR}/houdini/help ${HOUDINI_INSTALL_DIR}/houdini/public /opt/sidefx
 
 # Install the latest release tag of rez.
 
@@ -82,6 +81,11 @@ ARG GCC_VERSION
 ENV _CONTAINER_PYTHON_VERSION=${PYTHON_VERSION}
 
 ARG REZ_DIR="/opt/rez"
+
+# Copy in our rezconfig.py file to the rez install directory and sent the config env
+# var to point to it.
+COPY rezconfig.py ${REZ_DIR}/
+ENV REZ_CONFIG_FILE=${REZ_DIR}/rezconfig.py
 
 # Clone custom bind files and add them to the search bath
 ADD https://github.com/captainhammy/rez-bind-files.git ${REZ_DIR}/bind_files
@@ -114,8 +118,8 @@ RUN mkdir ${_REZ_PACKAGE_DIR} \
     && rez-bind cmake \
     && rez-bind gcc --exe /usr/bin/gcc-${GCC_VERSION} \
     && rez-pip --install humanfriendly \
-    && rez-pip --install 'numpy<1.25' \
-    && rez-pip --install 'PySide6<6.6' \
+    && rez-pip --install 'numpy<2.4' \
+    && rez-pip --install 'PySide6<6.9' \
     && rez-pip --install pytest \
     && rez-pip --install pytest-cov \
     && rez-pip --install pytest-datadir \
